@@ -31,7 +31,7 @@ This library wraps native `console` methods (`debug`, `info`, `warn`, `error`, `
 ## Features
 
 - Functional API
-- Supports log levels: `debug`, `info`, `warning`, `error`, `critical`
+- Supports log levels: `debug`, `info`, `warn`, `error`, `critical`
 - Emits **JSON lines** suitable for parsing in Grafana
 - Lightweight, zero-dependency
 
@@ -49,7 +49,6 @@ Create or update a `.npmrc` file in your project root and add:
 ```ini
 //npm.pkg.github.com/:_authToken=${YOUR_GITHUB_TOKEN}
 @tenhil-gmbh-co-kg:registry=https://npm.pkg.github.com
-always_auth=true
 
 ```
 
