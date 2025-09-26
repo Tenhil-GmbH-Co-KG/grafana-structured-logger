@@ -1,0 +1,24 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+
+# Logs
+npm-debug.log*
+
+# OS files
+.DS_Store
+
+# Env/config
+.env
+.npmrc
+
+# Vitest specific
+vitest.config.js
+vitest.config.js.map
+vitest.config.d.ts
+
+# JetBrains IDE
+.idea/
+*.iml

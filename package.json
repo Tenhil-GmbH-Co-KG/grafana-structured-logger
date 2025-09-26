@@ -1,0 +1,58 @@
+{
+  "name": "@tenhil/grafana-structured-logger",
+  "version": "1.0.0",
+  "description": "Lightweight structured logger for Node services on k8s. Emits JSON logs Grafana can parse reliably.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "grafana",
+    "logging",
+    "logger",
+    "json",
+    "kubernetes",
+    "k8s",
+    "structured-logging",
+    "console",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tenhil-GmbH-Co-KG/grafana-structured-logger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tenhil-GmbH-Co-KG/grafana-structured-logger/issues"
+  },
+  "homepage": "https://github.com/Tenhil-GmbH-Co-KG/grafana-structured-logger#readme",
+  "author": "Tenhil GmbH & Co KG",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.36.0",
+    "eslint": "9.36.0",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.44.1",
+    "vitest": "3.2.4"
+  }
+}
