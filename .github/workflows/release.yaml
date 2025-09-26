@@ -1,0 +1,122 @@
+# This workflow is triggered whenever a new release is
+# published. The tag belonging to the release must
+# satisfy the pattern "v2.1.0". The package is being
+# published to GitHub Packages at the end
+# of the workflow.
+
+name: Publish to GitHub Packages
+run-name: 'Publish ${{ github.event.release.tag_name }}'
+
+on:
+  release:
+    types: [published]
+
+env:
+  TAG: '${{ github.event.release.tag_name }}'
+
+jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate version tag pattern
+        run: |
+          if [[ ! "${{ env.TAG }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version tag ${{ env.TAG }} is invalid. A valid version tag looks like v2.0.0"
+            exit 1
+          fi
+      - name: Verify the tag is based off the main branch
+        run: |
+          if [[ "${{ github.event.release.target_commitish }}" != "main" ]]; then
+            echo "Release is not based on main but ${{ github.event.release.target_commitish }}"
+            exit 1
+          fi
+      - name: Make sure tag matches package.json version
+        run: |
+          PACKAGE_VERSION=$(node -e "console.log(require('./package.json').version);")
+          VERSION=$(echo "$TAG" | sed 's/v//g')
+          if [ "$PACKAGE_VERSION" != "$VERSION" ]; then
+            echo "Different versions between package.json ($PACKAGE_VERSION) and release tag ($VERSION)"
+            exit 1
+          fi
+
+  lint-test:
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint-test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run prepublishOnly
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@tenhil'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Publish package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
