@@ -1,13 +1,14 @@
 export type LogLevel = 'debug' | 'info' | 'warning' | 'error' | 'critical';
 
 type LabelKey = 'userId' | string; // it can be extended, if necessary
+type Label = Record<LabelKey, string | null | undefined>;
 
 export type LogRecord = {
   time: string;
   level: LogLevel;
   message: string;
   stack?: string;
-  labels?: Record<LabelKey, string>;
+  labels?: Label;
 };
 
 const isClient = (): boolean => typeof window !== 'undefined';
@@ -15,11 +16,7 @@ const isClient = (): boolean => typeof window !== 'undefined';
 /**
  * Emit a structured log line for server-side environments.
  */
-const emitServer = (
-  level: LogLevel,
-  messageOrError: string | Error,
-  labels?: Record<LabelKey, string>
-): void => {
+const emitServer = (level: LogLevel, messageOrError: string | Error, labels?: Label): void => {
   const isError = messageOrError instanceof Error;
 
   const record: LogRecord = {
@@ -75,11 +72,7 @@ const emitClient = (level: LogLevel, messageOrError: string | Error): void => {
 /**
  * Dispatch to server or client implementation.
  */
-const emit = (
-  level: LogLevel,
-  messageOrError: string | Error,
-  labels?: Record<LabelKey, string>
-): void => {
+const emit = (level: LogLevel, messageOrError: string | Error, labels?: Label): void => {
   if (isClient()) {
     emitClient(level, messageOrError);
   } else {
@@ -96,8 +89,7 @@ const emit = (
  * @param labels - Optional structured labels (e.g., userId, requestId, service).
  * @returns void
  */
-export const info = (message: string, labels?: Record<LabelKey, string>): void =>
-  emit('info', message, labels);
+export const info = (message: string, labels?: Label): void => emit('info', message, labels);
 
 /**
  * Log a debug message (low-level details useful during development).
@@ -106,8 +98,7 @@ export const info = (message: string, labels?: Record<LabelKey, string>): void =
  * @param labels - Optional structured labels.
  * @returns void
  */
-export const debug = (message: string, labels?: Record<LabelKey, string>): void =>
-  emit('debug', message, labels);
+export const debug = (message: string, labels?: Label): void => emit('debug', message, labels);
 
 /**
  * Log a warning.
@@ -116,8 +107,7 @@ export const debug = (message: string, labels?: Record<LabelKey, string>): void 
  * @param labels - Optional structured labels.
  * @returns void
  */
-export const warn = (message: string, labels?: Record<LabelKey, string>): void =>
-  emit('warning', message, labels);
+export const warn = (message: string, labels?: Label): void => emit('warning', message, labels);
 
 /**
  * Log an error.
@@ -126,8 +116,7 @@ export const warn = (message: string, labels?: Record<LabelKey, string>): void =
  * @param labels - Optional structured labels.
  * @returns void
  */
-export const error = (err: string | Error, labels?: Record<LabelKey, string>): void =>
-  emit('error', err, labels);
+export const error = (err: string | Error, labels?: Label): void => emit('error', err, labels);
 
 /**
  * Log a critical error (serious failure requiring immediate attention).
@@ -136,5 +125,5 @@ export const error = (err: string | Error, labels?: Record<LabelKey, string>): v
  * @param labels - Optional structured labels.
  * @returns void
  */
-export const critical = (err: string | Error, labels?: Record<LabelKey, string>): void =>
+export const critical = (err: string | Error, labels?: Label): void =>
   emit('critical', err, labels);

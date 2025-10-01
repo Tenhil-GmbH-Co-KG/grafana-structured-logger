@@ -1,6 +1,6 @@
 {
   "name": "@tenhil-gmbh-co-kg/grafana-structured-logger",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Lightweight structured logger for Node services on k8s. Emits JSON logs Grafana can parse reliably.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
