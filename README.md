@@ -59,7 +59,7 @@ Your `YOUR_GITHUB_TOKEN` only needs the scope:
 
 - `read:packages`
 
-### 3. Install the package
+### 2. Install the package
 
 ```bash
 # Using npm
@@ -70,7 +70,7 @@ yarn add @tenhil-gmbh-co-kg/grafana-structured-logger
 
 ```
 
-### 4. Usage in CI/CD
+### 3. Usage in CI/CD
 
 When installing in a pipeline, you must provide a token.
 For pipelines outside GitHub, create a PAT with `read:packages` scope and store it as a secret.
@@ -86,20 +86,27 @@ npm config set //npm.pkg.github.com/:_authToken=${CI_GITHUB_TOKEN}
 Example usage when consumed in other projects.
 
 ```typescript
-import { info, warn, error, critical } from '@tenhil-gmbh-co-kg/grafana-structured-logger';
+import logger from '@tenhil-gmbh-co-kg/grafana-structured-logger';
+
+// Optionally initialize the logger with default labels
+logger.init({
+  defaultLabels: {
+    version: process.env.MY_APP_VERSION,
+  },
+});
 
 // Simple log
-info('Service started');
+logger.info('Service started');
 
 // With structured data
-info('User logged in', { userId: '1234', role: 'admin' });
+logger.info('User logged in', { userId: '1234', role: 'admin' });
 
 // Warnings and errors
-warn('Disk space running low', { disk: '/dev/sda1', available: '2GB' });
-error('Database connection failed', { host: 'db.internal', retry: true });
+logger.warn('Disk space running low', { disk: '/dev/sda1', available: '2GB' });
+logger.error('Database connection failed', { host: 'db.internal', retry: true });
 
 // Critical errors
-critical('Out of memory', { service: 'payment-processor' });
+logger.critical('Out of memory', { service: 'payment-processor' });
 ```
 
 Expected output (example only).
@@ -108,9 +115,8 @@ Expected output (example only).
 {
   "level": "info",
   "message": "User logged in",
-  "timestamp": "2025-09-05T12:34:56.789Z",
+  "time": "2025-09-05T12:34:56.789Z",
   "userId": "1234",
   "role": "admin"
 }
-
 ```
