@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
-import { info, debug, warn, error, critical } from './index.js';
+import { info, debug, warn, error, critical, init } from './index.js';
 
 // Common mocks for console
 const mockConsoleDebug = vi.spyOn(console, 'debug').mockImplementation(() => {});
@@ -14,6 +14,8 @@ vi.spyOn(globalThis, 'Date').mockImplementation(() => mockDate);
 describe('Logging', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset init state between tests
+    init({ defaultLabels: {} });
   });
 
   afterAll(() => {
@@ -114,6 +116,43 @@ describe('Logging', () => {
           labels: {
             userId: 'u1',
             service: 'api',
+          },
+        })
+      );
+    });
+
+    it('merges defaultLabels from init with provided labels', () => {
+      init({ defaultLabels: { version: '1.0.0', environment: 'production' } });
+
+      info('With labels', { userId: 'u1' });
+
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        JSON.stringify({
+          time: '2024-01-15T10:30:00.000Z',
+          level: 'info',
+          message: 'With labels',
+          labels: {
+            version: '1.0.0',
+            environment: 'production',
+            userId: 'u1',
+          },
+        })
+      );
+    });
+
+    it('provided labels override defaultLabels from init', () => {
+      init({ defaultLabels: { version: '1.0.0', userId: 'default-user' } });
+
+      info('Override test', { userId: 'specific-user' });
+
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        JSON.stringify({
+          time: '2024-01-15T10:30:00.000Z',
+          level: 'info',
+          message: 'Override test',
+          labels: {
+            version: '1.0.0',
+            userId: 'specific-user',
           },
         })
       );
